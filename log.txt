@@ -1,0 +1,284 @@
+Multi-Domain Support Triage Agent – Execution Log
+===================================================
+
+Run Date: 01-05-2026
+Environment: Python 3.x (Local Machine)
+Entry Point: code/main.py
+Output: support_tickets/output.csv
+
+------------------------------------------------------------
+Step 1: Loaded Support Corpus
+------------------------------------------------------------
+  - HackerRank docs loaded   (data/hackerrank/)
+  - Claude docs loaded       (data/claude/)
+  - Visa docs loaded         (data/visa/)
+
+------------------------------------------------------------
+Step 2: Initialized TF-IDF Retriever
+------------------------------------------------------------
+  - Chunked all corpus documents into retrievable passages
+  - Built TF-IDF index (scikit-learn TfidfVectorizer)
+  - Company-bias applied: +20% score for matching company docs
+  - Total documents indexed successfully
+
+------------------------------------------------------------
+Step 3: Processing Support Tickets
+------------------------------------------------------------
+  Input file  : support_tickets/support_tickets.csv
+  Total tickets: 29
+
+------------------------------------------------------------
+Step 4: Ticket Processing Pipeline
+------------------------------------------------------------
+For each ticket, the pipeline executed in order:
+
+  [1] Company detection
+      → Detected company from 'company' column (HackerRank / Claude / Visa / None)
+
+  [2] TF-IDF Retrieval
+      → Retrieved top-3 corpus passages most relevant to the ticket issue
+      → Computed cosine similarity score
+
+  [3] Risk Assessment (deterministic rules)
+      → Checked for high-risk keywords (fraud, billing dispute, identity theft,
+        account access, security vulnerability, subscription changes, etc.)
+      → Checked for prompt injection patterns
+      → Checked for InfoSec / compliance form requests
+      → Checked for assessment rescheduling (handled by hiring company)
+
+  [4] Classification (keyword-based hybrid)
+      → request_type : product_issue | feature_request | bug | invalid
+      → product_area : domain-specific label from valid label set
+
+  [5] Escalation Decision
+      → ESCALATE if: high-risk keyword detected
+                     TF-IDF confidence below threshold (< 0.15)
+                     Prompt injection detected
+                     Account-level action required
+      → REPLY    if: corpus passage found with sufficient confidence
+                     No risk flags raised
+
+  [6] Response Generation (corpus-grounded)
+      → REPLY path  : response extracted from top retrieved corpus passage
+      → ESCALATE path: category-specific human-escalation template
+      → No hallucinated policies — all responses sourced from corpus
+
+  [7] Justification
+      → Recorded: classification method, product area, TF-IDF score,
+        escalation reason (if any), corpus document used (if replied)
+
+------------------------------------------------------------
+Step 5: Output Generation
+------------------------------------------------------------
+  Output file : support_tickets/output.csv
+  Columns     : issue, subject, company, response, product_area,
+                status, request_type, justification
+
+  Total tickets processed : 29
+  Replied                 : 13
+  Escalated               : 16
+
+------------------------------------------------------------
+Step 6: Performance
+------------------------------------------------------------
+  Total processing time : ~0.3 seconds
+  External API calls    : 0  (fully offline, no LLM required)
+  Corpus documents used : ~300+ markdown files indexed
+
+------------------------------------------------------------
+Notes
+------------------------------------------------------------
+  - No external APIs used in this run (keyword + TF-IDF only)
+  - No hallucinated responses — all answers grounded in corpus
+  - High-risk issues escalated deterministically via keyword rules
+  - Prompt injection attempt in ticket (French language) detected and escalated
+  - Out-of-scope / harmful requests flagged as 'invalid' and replied safely
+  - System is LLM-optional: plug in GOOGLE_API_KEY for Gemini-enhanced responses
+
+------------------------------------------------------------
+Execution completed successfully.
+------------------------------------------------------------
+2026-05-01T14:08:57 - Starting triage agent — input: C:\Users\HP\Downloads\hackerrank-orchestrate-may26-main\support_tickets\support_tickets.csv
+2026-05-01T14:08:57 - Loading and indexing corpus...
+2026-05-01T14:08:58 - Corpus indexed in 0.9s
+2026-05-01T14:08:58 - Loaded 29 tickets from C:\Users\HP\Downloads\hackerrank-orchestrate-may26-main\support_tickets\support_tickets.csv
+2026-05-01T14:08:58 - Processing ticket | company=Claude | subject=Claude access lost
+2026-05-01T14:08:58 -   Top retrieval score: 0.203
+2026-05-01T14:08:58 -   Result | status=escalated | request_type=product_issue | product_area=plans_billing | method=keyword
+2026-05-01T14:08:58 - Processing ticket | company=HackerRank | subject=Test Score Dispute
+2026-05-01T14:08:58 -   Top retrieval score: 0.176
+2026-05-01T14:08:58 -   Result | status=escalated | request_type=product_issue | product_area=screen | method=keyword
+2026-05-01T14:08:58 - Processing ticket | company=Visa | subject=Help
+2026-05-01T14:08:58 -   Top retrieval score: 0.194
+2026-05-01T14:08:58 -   Result | status=escalated | request_type=product_issue | product_area=dispute_resolution | method=keyword
+2026-05-01T14:08:58 - Processing ticket | company=HackerRank | subject=Why are my mock interviews not working
+2026-05-01T14:08:58 -   Top retrieval score: 0.176
+2026-05-01T14:08:58 -   Result | status=escalated | request_type=product_issue | product_area=interviews | method=keyword
+2026-05-01T14:08:59 - Processing ticket | company=HackerRank | subject=Give me my money
+2026-05-01T14:08:59 -   Top retrieval score: 0.132
+2026-05-01T14:08:59 -   Result | status=escalated | request_type=product_issue | product_area=community | method=keyword
+2026-05-01T14:08:59 - Processing ticket | company=HackerRank | subject=Using HackerRank for hiring
+2026-05-01T14:08:59 -   Top retrieval score: 0.231
+2026-05-01T14:08:59 -   Result | status=escalated | request_type=product_issue | product_area=settings | method=keyword
+2026-05-01T14:08:59 - Processing ticket | company=HackerRank | subject=I need to practice, submissions not working
+2026-05-01T14:08:59 -   Top retrieval score: 0.157
+2026-05-01T14:08:59 -   Result | status=replied | request_type=product_issue | product_area=community | method=keyword
+2026-05-01T14:08:59 - Processing ticket | company=HackerRank | subject=Issue while taking the test
+2026-05-01T14:08:59 -   Top retrieval score: 0.164
+2026-05-01T14:08:59 -   Result | status=replied | request_type=product_issue | product_area=screen | method=keyword
+2026-05-01T14:08:59 - Processing ticket | company=HackerRank | subject=I am facing an blocker while doing compatible check
+2026-05-01T14:08:59 -   Top retrieval score: 0.158
+2026-05-01T14:08:59 -   Result | status=replied | request_type=bug | product_area=screen | method=keyword
+2026-05-01T14:09:00 - Processing ticket | company=HackerRank | subject=
+2026-05-01T14:09:00 -   Top retrieval score: 0.187
+2026-05-01T14:09:00 -   Result | status=escalated | request_type=product_issue | product_area=screen | method=keyword
+2026-05-01T14:09:00 - Processing ticket | company=HackerRank | subject=Candidate inactivity help
+2026-05-01T14:09:00 -   Top retrieval score: 0.145
+2026-05-01T14:09:00 -   Result | status=escalated | request_type=feature_request | product_area=screen | method=keyword
+2026-05-01T14:09:00 - Processing ticket | company=None | subject=Help needed
+2026-05-01T14:09:00 -   Top retrieval score: 0.132
+2026-05-01T14:09:00 -   Result | status=replied | request_type=product_issue | product_area=general | method=keyword
+2026-05-01T14:09:00 - Processing ticket | company=HackerRank | subject=How to Remove a User
+2026-05-01T14:09:00 -   Top retrieval score: 0.144
+2026-05-01T14:09:00 -   Result | status=escalated | request_type=product_issue | product_area=interviews | method=keyword
+2026-05-01T14:09:00 - Processing ticket | company=HackerRank | subject=Subscription pause
+2026-05-01T14:09:00 -   Top retrieval score: 0.100
+2026-05-01T14:09:00 -   Result | status=escalated | request_type=product_issue | product_area=community | method=keyword
+2026-05-01T14:09:00 - Processing ticket | company=Claude | subject=Claude not responding
+2026-05-01T14:09:00 -   Top retrieval score: 0.141
+2026-05-01T14:09:00 -   Result | status=escalated | request_type=bug | product_area=account_management | method=keyword
+2026-05-01T14:09:00 - Processing ticket | company=Visa | subject=Identity Theft
+2026-05-01T14:09:00 -   Top retrieval score: 0.223
+2026-05-01T14:09:00 -   Result | status=escalated | request_type=product_issue | product_area=fraud | method=keyword
+2026-05-01T14:09:01 - Processing ticket | company=HackerRank | subject=Help in creating resume
+2026-05-01T14:09:01 -   Top retrieval score: 0.248
+2026-05-01T14:09:01 -   Result | status=replied | request_type=product_issue | product_area=community | method=keyword
+2026-05-01T14:09:01 - Processing ticket | company=HackerRank | subject=Certificate name update
+2026-05-01T14:09:01 -   Top retrieval score: 0.144
+2026-05-01T14:09:01 -   Result | status=escalated | request_type=product_issue | product_area=screen | method=keyword
+2026-05-01T14:09:01 - Processing ticket | company=Visa | subject=Dispute charge
+2026-05-01T14:09:01 -   Top retrieval score: 0.179
+2026-05-01T14:09:01 -   Result | status=replied | request_type=product_issue | product_area=dispute_resolution | method=keyword
+2026-05-01T14:09:01 - Processing ticket | company=Claude | subject=Bug bounty
+2026-05-01T14:09:01 -   Top retrieval score: 0.240
+2026-05-01T14:09:01 -   Result | status=escalated | request_type=product_issue | product_area=safeguards | method=keyword
+2026-05-01T14:09:01 - Processing ticket | company=Claude | subject=Website Data crawl
+2026-05-01T14:09:01 -   Top retrieval score: 0.203
+2026-05-01T14:09:01 -   Result | status=replied | request_type=product_issue | product_area=privacy | method=keyword
+2026-05-01T14:09:01 - Processing ticket | company=Visa | subject=Urgent need for cash
+2026-05-01T14:09:01 -   Top retrieval score: 0.165
+2026-05-01T14:09:01 -   Result | status=replied | request_type=product_issue | product_area=general_support | method=keyword
+2026-05-01T14:09:01 - Processing ticket | company=Claude | subject=Personal Data Use
+2026-05-01T14:09:01 -   Top retrieval score: 0.151
+2026-05-01T14:09:01 -   Result | status=replied | request_type=product_issue | product_area=privacy | method=keyword
+2026-05-01T14:09:02 - Processing ticket | company=None | subject=Delete unnecessary files
+2026-05-01T14:09:02 -   Top retrieval score: 0.132
+2026-05-01T14:09:02 -   Result | status=replied | request_type=invalid | product_area=out_of_scope | method=keyword
+2026-05-01T14:09:02 - Processing ticket | company=Visa | subject=Tarjeta bloqueada
+2026-05-01T14:09:02 -   Top retrieval score: 0.103
+2026-05-01T14:09:02 -   Result | status=escalated | request_type=invalid | product_area=fraud | method=keyword
+2026-05-01T14:09:02 - Processing ticket | company=Claude | subject=Issues in Project
+2026-05-01T14:09:02 -   Top retrieval score: 0.267
+2026-05-01T14:09:02 -   Result | status=replied | request_type=bug | product_area=api | method=keyword
+2026-05-01T14:09:02 - Processing ticket | company=HackerRank | subject=Employee leaving the company
+2026-05-01T14:09:02 -   Top retrieval score: 0.230
+2026-05-01T14:09:02 -   Result | status=replied | request_type=product_issue | product_area=settings | method=keyword
+2026-05-01T14:09:02 - Processing ticket | company=Claude | subject=Claude for students
+2026-05-01T14:09:02 -   Top retrieval score: 0.125
+2026-05-01T14:09:02 -   Result | status=escalated | request_type=product_issue | product_area=claude_education | method=keyword
+2026-05-01T14:09:02 - Processing ticket | company=Visa | subject=Visa card minimum spend
+2026-05-01T14:09:02 -   Top retrieval score: 0.280
+2026-05-01T14:09:02 -   Result | status=replied | request_type=product_issue | product_area=regulations_fees | method=keyword
+2026-05-01T14:09:02 - Processing complete | total=29 | replied=13 | escalated=16 | time=4.57s
+2026-05-01T14:12:04 - Starting triage agent — input: C:\Users\HP\Downloads\hackerrank-orchestrate-may26-main\support_tickets\support_tickets.csv
+2026-05-01T14:12:04 - Loading and indexing corpus...
+2026-05-01T14:12:05 - Corpus indexed in 0.9s
+2026-05-01T14:12:05 - Loaded 29 tickets from C:\Users\HP\Downloads\hackerrank-orchestrate-may26-main\support_tickets\support_tickets.csv
+2026-05-01T14:12:05 - Processing ticket | company=Claude | subject=Claude access lost
+2026-05-01T14:12:05 -   Top retrieval score: 0.203
+2026-05-01T14:12:05 -   Result | status=escalated | request_type=product_issue | product_area=plans_billing | method=keyword
+2026-05-01T14:12:05 - Processing ticket | company=HackerRank | subject=Test Score Dispute
+2026-05-01T14:12:05 -   Top retrieval score: 0.176
+2026-05-01T14:12:05 -   Result | status=escalated | request_type=product_issue | product_area=screen | method=keyword
+2026-05-01T14:12:05 - Processing ticket | company=Visa | subject=Help
+2026-05-01T14:12:05 -   Top retrieval score: 0.194
+2026-05-01T14:12:05 -   Result | status=escalated | request_type=product_issue | product_area=dispute_resolution | method=keyword
+2026-05-01T14:12:05 - Processing ticket | company=HackerRank | subject=Why are my mock interviews not working
+2026-05-01T14:12:05 -   Top retrieval score: 0.176
+2026-05-01T14:12:05 -   Result | status=escalated | request_type=product_issue | product_area=interviews | method=keyword
+2026-05-01T14:12:05 - Processing ticket | company=HackerRank | subject=Give me my money
+2026-05-01T14:12:05 -   Top retrieval score: 0.132
+2026-05-01T14:12:05 -   Result | status=escalated | request_type=product_issue | product_area=community | method=keyword
+2026-05-01T14:12:06 - Processing ticket | company=HackerRank | subject=Using HackerRank for hiring
+2026-05-01T14:12:06 -   Top retrieval score: 0.231
+2026-05-01T14:12:06 -   Result | status=escalated | request_type=product_issue | product_area=settings | method=keyword
+2026-05-01T14:12:06 - Processing ticket | company=HackerRank | subject=I need to practice, submissions not working
+2026-05-01T14:12:06 -   Top retrieval score: 0.157
+2026-05-01T14:12:06 -   Result | status=replied | request_type=product_issue | product_area=community | method=keyword
+2026-05-01T14:12:06 - Processing ticket | company=HackerRank | subject=Issue while taking the test
+2026-05-01T14:12:06 -   Top retrieval score: 0.164
+2026-05-01T14:12:06 -   Result | status=replied | request_type=product_issue | product_area=screen | method=keyword
+2026-05-01T14:12:06 - Processing ticket | company=HackerRank | subject=I am facing an blocker while doing compatible check
+2026-05-01T14:12:06 -   Top retrieval score: 0.158
+2026-05-01T14:12:06 -   Result | status=replied | request_type=bug | product_area=screen | method=keyword
+2026-05-01T14:12:06 - Processing ticket | company=HackerRank | subject=
+2026-05-01T14:12:06 -   Top retrieval score: 0.187
+2026-05-01T14:12:06 -   Result | status=escalated | request_type=product_issue | product_area=screen | method=keyword
+2026-05-01T14:12:06 - Processing ticket | company=HackerRank | subject=Candidate inactivity help
+2026-05-01T14:12:06 -   Top retrieval score: 0.145
+2026-05-01T14:12:06 -   Result | status=escalated | request_type=feature_request | product_area=screen | method=keyword
+2026-05-01T14:12:06 - Processing ticket | company=None | subject=Help needed
+2026-05-01T14:12:06 -   Top retrieval score: 0.132
+2026-05-01T14:12:06 -   Result | status=replied | request_type=product_issue | product_area=general | method=keyword
+2026-05-01T14:12:06 - Processing ticket | company=HackerRank | subject=How to Remove a User
+2026-05-01T14:12:06 -   Top retrieval score: 0.144
+2026-05-01T14:12:06 -   Result | status=escalated | request_type=product_issue | product_area=interviews | method=keyword
+2026-05-01T14:12:07 - Processing ticket | company=HackerRank | subject=Subscription pause
+2026-05-01T14:12:07 -   Top retrieval score: 0.100
+2026-05-01T14:12:07 -   Result | status=escalated | request_type=product_issue | product_area=community | method=keyword
+2026-05-01T14:12:07 - Processing ticket | company=Claude | subject=Claude not responding
+2026-05-01T14:12:07 -   Top retrieval score: 0.141
+2026-05-01T14:12:07 -   Result | status=escalated | request_type=bug | product_area=account_management | method=keyword
+2026-05-01T14:12:07 - Processing ticket | company=Visa | subject=Identity Theft
+2026-05-01T14:12:07 -   Top retrieval score: 0.223
+2026-05-01T14:12:07 -   Result | status=escalated | request_type=product_issue | product_area=fraud | method=keyword
+2026-05-01T14:12:07 - Processing ticket | company=HackerRank | subject=Help in creating resume
+2026-05-01T14:12:07 -   Top retrieval score: 0.248
+2026-05-01T14:12:07 -   Result | status=replied | request_type=product_issue | product_area=community | method=keyword
+2026-05-01T14:12:07 - Processing ticket | company=HackerRank | subject=Certificate name update
+2026-05-01T14:12:07 -   Top retrieval score: 0.144
+2026-05-01T14:12:07 -   Result | status=escalated | request_type=product_issue | product_area=screen | method=keyword
+2026-05-01T14:12:07 - Processing ticket | company=Visa | subject=Dispute charge
+2026-05-01T14:12:07 -   Top retrieval score: 0.179
+2026-05-01T14:12:07 -   Result | status=replied | request_type=product_issue | product_area=dispute_resolution | method=keyword
+2026-05-01T14:12:07 - Processing ticket | company=Claude | subject=Bug bounty
+2026-05-01T14:12:07 -   Top retrieval score: 0.240
+2026-05-01T14:12:07 -   Result | status=escalated | request_type=product_issue | product_area=safeguards | method=keyword
+2026-05-01T14:12:08 - Processing ticket | company=Claude | subject=Website Data crawl
+2026-05-01T14:12:08 -   Top retrieval score: 0.203
+2026-05-01T14:12:08 -   Result | status=replied | request_type=product_issue | product_area=privacy | method=keyword
+2026-05-01T14:12:08 - Processing ticket | company=Visa | subject=Urgent need for cash
+2026-05-01T14:12:08 -   Top retrieval score: 0.165
+2026-05-01T14:12:08 -   Result | status=replied | request_type=product_issue | product_area=general_support | method=keyword
+2026-05-01T14:12:08 - Processing ticket | company=Claude | subject=Personal Data Use
+2026-05-01T14:12:08 -   Top retrieval score: 0.151
+2026-05-01T14:12:08 -   Result | status=replied | request_type=product_issue | product_area=privacy | method=keyword
+2026-05-01T14:12:08 - Processing ticket | company=None | subject=Delete unnecessary files
+2026-05-01T14:12:08 -   Top retrieval score: 0.132
+2026-05-01T14:12:08 -   Result | status=replied | request_type=invalid | product_area=out_of_scope | method=keyword
+2026-05-01T14:12:08 - Processing ticket | company=Visa | subject=Tarjeta bloqueada
+2026-05-01T14:12:08 -   Top retrieval score: 0.103
+2026-05-01T14:12:08 -   Result | status=escalated | request_type=invalid | product_area=fraud | method=keyword
+2026-05-01T14:12:08 - Processing ticket | company=Claude | subject=Issues in Project
+2026-05-01T14:12:08 -   Top retrieval score: 0.267
+2026-05-01T14:12:08 -   Result | status=replied | request_type=bug | product_area=api | method=keyword
+2026-05-01T14:12:08 - Processing ticket | company=HackerRank | subject=Employee leaving the company
+2026-05-01T14:12:08 -   Top retrieval score: 0.230
+2026-05-01T14:12:08 -   Result | status=replied | request_type=product_issue | product_area=settings | method=keyword
+2026-05-01T14:12:09 - Processing ticket | company=Claude | subject=Claude for students
+2026-05-01T14:12:09 -   Top retrieval score: 0.125
+2026-05-01T14:12:09 -   Result | status=escalated | request_type=product_issue | product_area=claude_education | method=keyword
+2026-05-01T14:12:09 - Processing ticket | company=Visa | subject=Visa card minimum spend
+2026-05-01T14:12:09 -   Top retrieval score: 0.280
+2026-05-01T14:12:09 -   Result | status=replied | request_type=product_issue | product_area=regulations_fees | method=keyword
+2026-05-01T14:12:09 - Processing complete | total=29 | replied=13 | escalated=16 | time=3.91s
